@@ -145,7 +145,7 @@ export class UserService extends Service {
          * @param userName 
          * @returns 
          */
-    public async deleteByID(userName: string) {
+    public async deleteById(id: string) {
 
         const resp: resp<any> = {
             code: 200,
@@ -154,7 +154,7 @@ export class UserService extends Service {
         }
 
         try {
-            const res = await studentsModel.deleteOne({ userName: userName });
+            const res = await studentsModel.deleteOne({ _id: id });
             resp.message = "success";
             resp.body = res;
         } catch (error) {
@@ -165,34 +165,36 @@ export class UserService extends Service {
         return resp;
     }
 
-    /**更新一筆用戶
-     * @param userName 用戶名
+    /**
+     * 更新一筆用戶
+     * @param id 用戶ID
      * @param name 新名字
      * @returns 狀態
      */
-    public async updateNameByID(userName: string, name: string) {
+    public async updateNameById(id: string, name: string) {
+
         const resp: resp<DBResp<Student> | undefined> = {
             code: 200,
             message: "",
             body: undefined,
         };
 
-        try {
-            const user = await studentsModel.findOne({ userName });
+            const user = await studentsModel.findById(id)
 
             if (user) {
+                try{
                 user.name = name;
                 await user.save();
                 resp.body = user;
                 resp.message = "update success";
+            }catch(error){
+                resp.code = 500;
+                resp.message = "server error";
+            }
             } else {
                 resp.code = 404;
                 resp.message = "user not found";
             }
-        } catch (error) {
-            resp.code = 500;
-            resp.message = "server error";
-        }
 
         return resp;
     }
